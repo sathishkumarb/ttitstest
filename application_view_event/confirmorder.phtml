@@ -1,0 +1,82 @@
+<link href='http://fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Raleway:400,300,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+<link href="<?php echo $this->basePath('/assets/frontend/css/bootstrap.min.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('/assets/frontend/css/font-awesome.min.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('/assets/frontend/css/theme-style.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('/assets/frontend/css/custom-style.css'); ?>" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+    var FULL_URL_PATH = '<?php echo $this->url('home', array(), array('force_canonical' => true)); ?>';
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="<?php echo $this->basePath('/assets/frontend/js/bootstrap.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('/assets/frontend/js/bootstrap3-typeahead.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('/assets/frontend/js/common.js'); ?>"></script>
+<script src="<?php echo $this->basePath('/js/jquery.validate.js'); ?>"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        form1.submit();
+        //alert('submit auto');
+    });
+</script>
+<div class="container main mtop-55">
+    <div class="row">
+        <div class="col-md-8 col-sm-8">
+            <div class="checkout">
+                <h2 class="heading"><span>Checkout</span></h2>
+                <p class="order-time">Confirm Order <span id="timer"><span></p>
+                            <div id="countdowntimer"><span id="timer"><span></div>
+                                        <div class="row form-element">
+                                           <?php //echo "<pre>"; print_r($postedData); ?>
+                                            <div class="col-md-7 col-sm-7">
+                                                <label>Your Name : <span><?= $postedData['firstname'] . ' ' . $postedData['lastname']; ?></span></label>
+                                                <br/>
+                                                <label>Your Email : <span><?= $postedData['email']; ?></span></label>
+                                                <form METHOD="post" ACTION="https://payfort.test.v-psp.com/Tokenization/HostedPage" id=form1 name=form1>                
+                                                    <input type="hidden" name="ACCOUNT.PSPID" value="<?php echo $conf['accountPspId']; ?>">
+                                                    <input type="hidden" name="PARAMETERS.ACCEPTURL" value="<?php echo $conf['parametersAcceptUrl']; ?>">
+                                                    <input type="hidden" name="PARAMETERS.EXCEPTIONURL" value="<?php echo $conf['parametersExceptionUrl']; ?>">
+                                                    <input type="hidden" name="SHASIGNATURE.SHASIGN" value="<?php echo $conf['sha1']; ?>">
+                                                    <input type="hidden" name="CARD.PAYMENTMETHOD" value="<?php echo $conf['paymentMethod']; ?>">
+                                                    <input type="hidden" name="LAYOUT.LANGUAGE" value="<?php echo $conf['layoutLanguage']; ?>">
+                                                    <!--<input type="hidden" name="ALIAS.ALIASID" value="<?php echo $conf['aliasId']; ?>">-->
+                                                    <input type="hidden" name="ALIAS.ORDERID" value="<?php echo $conf['aliasOrderId']; ?>">
+                                                    <input type="hidden" name="ALIAS.STOREPERMANENTLY" value="<?php echo $conf["aliasStorePermanently"]; ?>">
+                                                    <!--<input type="submit" value="Pay" id="submit2" name="submit2">-->
+                                                    <?php
+                                                    $month = $postedData["month"];
+                                                    $year = $postedData["year"];
+                                                    if ($month < 10) {
+                                                        $month = "0" . $month;
+                                                    }
+                                                    $year = substr($year, 2);
+                                                    $ed = $month . "/" . $year;
+                                                    ?>
+                                                    <!--Expiry date (MM/YY or MMYY).-->
+                                                    <input type="hidden" name="ED" value="<?php echo $ed; ?>"><br />
+                                                    <input type="hidden" name="CVC" value="<?php echo $postedData['securityno']; ?>"><br />
+                                                    <input type="hidden" name="OPERATION" value="SAL">	
+                                                    <input type="hidden" name="TITLE" value="Payment Processed">
+                                                    <input type="hidden" name="BGCOLOR" value="#ffffff">
+                                                    <input type="hidden" name="TXTCOLOR" value="#000000">
+                                                    <input type="hidden" name="TBLBGCOLOR" value="#ffffff">
+                                                    <input type="hidden" name="TBLTXTCOLOR" value="">
+                                                    <input type="hidden" name="BUTTONBGCOLOR" value="">
+                                                    <!--6: Link between the merchantâ€™s website e-Commerce Advanced and our payment page page 14 © PayFort 2015, All rights reserved.-->
+                                                    <input type="hidden" name="BUTTONTXTCOLOR" value="#000000">
+                                                    <input type="hidden" name="LOGO" value="">
+                                                    <input type="hidden" name="FONTTYPE" value="arial">
+                                                    <ul>
+                                                        <li> Total Price : <?php echo $data['totalAmount'] ?></li>
+                                                        <li class="buy-tickets">
+                                                            <input class="btn-blue" type="submit" value="Proceed to Payment" id=submit2" name=submit2">
+                                                        </li>
+                                                    </ul>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        </div>
+                                        </div>
+                                        </div>

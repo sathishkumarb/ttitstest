@@ -1,0 +1,142 @@
+<?php if($isScroll==1){ ?>
+ <?php $commonViewHelper = $this->Commonviewhelper(); ?>
+<?php
+if(count($this->events) > 0){
+ foreach($this->events as $event){
+ ?>
+<div class="col-md-6 col-sm-6">
+    <div class="img-wrapper"> <img alt="" src="<?php echo $this->basePath(); ?>/uploads/event/<?php echo $event['img']; ?>">
+    <div class="overlay">
+      <div class="overlay-contents">
+        <h4><?php echo $event['title']; ?><span><?php echo $event['artist']; ?></span></h4>
+        <p class="post-by text-blue"><span class="pull-right"><img src="<?php echo $this->basePath(); ?>/uploads/category/<?php echo $event['icon']; ?>" width=22 height=25></span> <?php echo $commonViewHelper->getDateTimeForEventsListing($event['event']); ?> </p>
+      </div>
+    </div>
+    <!--/overlay--> 
+    <div class="hover-overlay">
+          <div class="hover-content"><img src="<?php echo $this->basePath('/assets/frontend/images/img-hover-logo.png');?>" alt=""><br>
+            <a class="hover_buy" href="<?php echo $this->url('eventdetail', array('eventId' => $event['eventid'])); ?>">Buy Tickets</a> </div>
+        </div>
+        <!--/hover-overlay--> 
+                   
+  </div>
+</div>
+
+  <?php
+ }
+}else{
+    ?>                 
+ <div class="col-md-6 col-sm-6">
+     <h1 style='color:#000;margin-left:10px;'>No Event(s) Found</h1>
+ </div>                   
+<?php
+ }
+ ?>
+           
+  
+<?php } else{ ?>
+<?php echo $this->headScript()
+                ->appendFile($this->basePath('/assets/frontend/js/jquery.scrollExtend.js'))   
+                ->appendFile($this->basePath('/assets/frontend/js/jquery.getUrlParam.js'));
+?>
+<script type="text/javascript">
+    $(function(){
+        var offset = parseInt($(document).getUrlParam("offset"));
+
+        if (isNaN(offset)){
+            offset = <?php echo $limit; ?>;
+        } else {
+            offset += <?php echo $limit; ?>;
+        }
+        var url = "<?php echo  $this->url('eventsearch',array("searchval"=>$searchKey,"type"=>$searchType)); ?>"
+        url = url + '?offset=' + offset+'&isscroll=1'; 
+        <?php if ($eventsCount > $limit){ ?>
+        jQuery(".data1").scrollExtend({
+            'target' : '#upcoming-events',        
+            'url' : function(containor) {
+                 return url;
+            },
+            'beforeStart' : function() {
+                if (offset < <?php echo $eventsCount; ?> ) {
+                      return true;
+                  }
+             },
+            'onSuccess' : function() {
+                offset += <?php echo $limit; ?> ;
+                url = "<?php echo $this->url('eventsearch',array("searchval"=>$searchKey,"type"=>$searchType)); ?>"
+                url = url + '?offset=' + offset+'&isscroll=1';
+            }
+        });
+        <?php } ?>
+    }); 
+</script>
+ <?php $commonViewHelper = $this->Commonviewhelper(); ?>
+<div class="search-result" id="all-results">
+      <div class="venue-results">
+        <h2 class="heading-2"><?php echo $this->search_title; ?></h2>
+        <div class="row">
+          <div class="col-md-8 border-right">
+		  <h5>events</h5>
+            <div id="upcoming-events" class="row data1">
+               <?php
+               if(count($this->events) > 0){
+                foreach($this->events as $event){
+                ?>
+               <div class="col-md-6 col-sm-6">
+                    
+                   <div class="img-wrapper"> <img alt="" src="<?php echo $this->basePath(); ?>/uploads/event/<?php echo $event['img']; ?>">
+                   <div class="overlay">
+                     <div class="overlay-contents">
+                       <h4><?php echo $event['title']; ?><span><?php echo $event['artist']; ?></span></h4>
+                       <p class="post-by text-blue"><span class="pull-right"><img src="<?php echo $this->basePath(); ?>/uploads/category/<?php echo $event['icon']; ?>" width=22 height=25></span> <?php echo $commonViewHelper->getDateTimeForEventsListing($event['event']); ?> </p>
+                     </div>
+                     <div class="hover-overlay">
+                     	<div class="hover-content"><img src="<?php echo $this->basePath('/assets/frontend/images/img-hover-logo.png');?>" alt=""><br>
+                        	<a class="hover_buy" href="<?php echo $this->url('eventdetail',array('eventId'=>$event['eventid'])); ?>">Buy Tickets</a>
+            			</div>
+                     </div>
+                   </div>
+                   <!--/overlay-->  
+                   	
+                    <!--/hover-overlay-->                  
+                    </div>
+                    
+               </div>
+                 <?php
+                }
+               }else{
+                   ?>                 
+                <div class="col-md-6 col-sm-6">
+                    <h1 style='color:#000;margin-left:10px;'>No Event(s) Found</h1>
+                </div>                   
+               <?php
+                }
+                ?>
+            </div>
+            <!--upcoming-events--> 
+            
+          </div>
+          <div class="col-md-4 sidebar-2">
+                <h5>artists</h5>
+                <ul>
+                    <?php
+                    foreach($this->artists as $artist){
+                        echo "<li>".$artist."</li>";
+                    }
+                    ?>                      
+                </ul>
+
+                <h5>venues</h5>
+                <ul>
+                    <?php
+                    foreach($this->venus as $venue){
+                        echo "<li>".$venue."</li>";
+                    }
+                    ?>                      
+                </ul>
+          </div>
+        </div>
+      </div>
+      <!--venue-results--> 
+    </div>
+<?php } ?>

@@ -1,0 +1,60 @@
+<?php 
+   $commonViewHelper = $this->Commonviewhelper();
+   $eDate = $postedData['eventDate'];
+   $eTime = $postedData['eventTime'];
+   $eDate = date('F d, Y',strtotime($eDate));
+   $eTime = date('h:i A',strtotime($eTime));
+   
+?>
+<div class="col-md-6"><i class="icon-color-blue cal"></i><br><span id="selectedDate"><?php echo $eDate; ?></span> </div>
+<div class="col-md-6 border-left"><i class="icon-color-blue clock"></i><br><span id="selectedTime"><?php echo $eTime; ?></span></div>
+<span class="caret"></span>@#$!$
+<form name="frmTickets" method="post" action="<?php echo $this->url('checkout');?>">
+    <input type="hidden" name="eventId" value="<?php echo $eventData['id']; ?>" />
+    <input type="hidden" name="eventDate" value="<?php echo $postedData['eventDate']; ?>" />
+    <input type="hidden" name="eventTime" value="<?php echo $postedData['eventTime']; ?>" />
+    <input type="hidden" id="totalAmount" name="totalAmount" value="0" />
+    <input type="hidden" id="userId" name="userId" value="<?php echo $userId; ?>" />
+        <?php 
+           foreach($eventData['event_seat'] as $eventSeat){ 
+                    $userSeatCount = $commonViewHelper->getUserSeatCount($postedData['eventId'],$eventSeat->getId(),$postedData['eventDate'],$postedData['eventTime']);
+                    $availableSeats = $eventSeat->getNumberOfSeats() - $userSeatCount;
+                    $ticketType = $eventSeat->getTicketType();
+                    $backgroundColor = '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT);
+                    $block_class = str_replace(" ", "-", strtolower($ticketType));
+        ?>
+    <style>
+    .event-contents ul li.<?php echo $block_class;?>-section .availability{color:<?php echo $backgroundColor;?>;}
+    .event-contents ul li.<?php echo $block_class;?>-section .icon-stage{ background:<?php echo $backgroundColor;?>;}
+    .event-contents ul li.<?php echo $block_class;?>-section.active{border-color:<?php echo $backgroundColor;?>;box-shadow:<?php echo $backgroundColor;?> 0px 0px 3px;}
+
+    .seat-chart .<?php echo $block_class;?> .icon-round {  background: <?php echo $backgroundColor;?> none repeat scroll 0 0;border-radius: 50%;display: inline-block;height: 10px;width: 10px; margin: 2px 0 0 2px; position: absolute;
+    }
+    </style>
+        
+           
+        <li class="<?php echo $block_class;?>-section myticket"><i class="icon-stage"></i>
+          <div class="stage-des">
+            <h3><?php echo $eventSeat->getTicketType(); ?></h3>
+            <p><?php echo $availableSeats; ?> tickets available</p>
+            <span style="color:red; font-size:12px;"></span>
+          </div>
+          <div class="stage-info">
+            <input data-ticketprice="<?php echo $eventSeat->getSeatPrice(); ?>" name="<?php echo $eventSeat->getTicketType(); ?>" type="number" class="form-control" placeholder="0" min="0" value="0" max="<?php echo $availableSeats; ?>" maxlength="3" >
+            <span class="availability"><?php echo $eventSeat->getSeatPrice(); ?> <?php echo $eventSeat->getCurrency(); ?></span> 
+          </div>
+        </li>
+<?php } ?>
+</form>
+<li class="buy-tickets">
+    <?php if($userId){ ?>
+        <input id="submitbtn" type="button" class="btn-blue pull-right" value="buy tickets" />
+    <?php }else{ ?>
+        <a class="btn-blue pull-right" data-target="#login" data-toggle="modal" href="javascript:void(0)">buy tickets</a>
+    <?php }  ?>
+    <span id="errormsg" style="color:red;"></span>
+  <div class="total">
+    <label>total</label>
+    <span id="totalVal">0</span> AED 
+  </div>
+</li>

@@ -1,0 +1,41 @@
+<link href='http://fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Raleway:400,300,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+<link href="<?php echo $this->basePath('/assets/frontend/css/bootstrap.min.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('/assets/frontend/css/font-awesome.min.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('/assets/frontend/css/theme-style.css'); ?>" rel="stylesheet" type="text/css">
+<link href="<?php echo $this->basePath('/assets/frontend/css/custom-style.css'); ?>" rel="stylesheet" type="text/css">
+<script type="text/javascript">
+    var FULL_URL_PATH = '<?php echo $this->url('home', array(), array('force_canonical' => true)); ?>';
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+<script src="<?php echo $this->basePath('/assets/frontend/js/bootstrap.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('/assets/frontend/js/bootstrap3-typeahead.min.js'); ?>"></script>
+<script src="<?php echo $this->basePath('/assets/frontend/js/common.js'); ?>"></script>
+<script src="<?php echo $this->basePath('/js/jquery.validate.js'); ?>"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        window.top.location.href = "<?php echo $redirectUrl; ?>";
+    });
+</script>
+<div class="container main mtop-55">
+    <div class="row">
+        <div class="col-md-8 col-sm-8">
+            <div class="checkout">
+              <!--<h2 class="heading"><span>Checkout</span></h2>-->
+              <!--<p class="order-time">Confirm Order <span id="timer"><span></p>-->
+              <!--<div id="countdowntimer"><span id="timer"><span></div>-->
+                <div class="row form-element">
+                    <div class="col-md-7 col-sm-7">
+                        <?php
+                        if (isset($htmlData)) {
+                            echo $htmlData;
+                        }
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

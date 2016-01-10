@@ -1,0 +1,2 @@
+[03-Nov-2015 13:44:14 UTC] PHP Fatal error:  QRcode : Data do not exist. in /home/y2m/public_html/development/tapetickets/public/assets/frontend/classes/qr-code/php/qr_img.php on line 88
+[10-Dec-2015 12:56:31 UTC] PHP Fatal error:  QRcode : Data do not exist. in /home/tapetickets/public_html/beta/public/assets/frontend/classes/qr-code/php/qr_img.php on line 88

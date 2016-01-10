@@ -1,0 +1,30 @@
+<h2 class="text-center heading"><span>New upcoming events </span> near you</h2>
+<?php echo $this->flashMessenger()->render('success', array('alert alert-success')); ?>
+<?php $commonViewHelper = $this->Commonviewhelper(); ?>
+  <div class="row" id="upcoming-events">
+  <?php if(!empty($nearbyEvents)){ 
+    foreach($nearbyEvents as $event){ ?>
+    <div class="col-md-4 col-sm-4">
+      <div class="img-wrapper"> <img src="<?php echo $this->basePath('/uploads/event/'.$event->getEventImageMedium());?>" alt="">
+        <div class="overlay">
+          <div class="overlay-contents">
+            <h4><?php echo $event->getEventName(); ?><span><?php echo $event->getEventVenueTitle(); ?></span></h4>
+            <p class="post-by text-blue">
+                <span class="pull-right"><img width="22" height="25" src="<?php echo $this->basePath('/uploads/category/'.$event->getCategory()->getIcon()); ?>" /></span>
+                <?php echo $commonViewHelper->getDateTimeForEventsListing($event); ?>
+            </p>
+          </div>
+        </div>
+        <!--/overlay-->
+        <div class="hover-overlay">
+          <div class="hover-content"><img src="<?php echo $this->basePath('/assets/frontend/images/img-hover-logo.png');?>" alt=""><br>
+            <a class="hover_buy" href="<?php echo $this->url('eventdetail', array('eventId' => $event->getId())); ?>">Buy Tickets</a> </div>
+        </div>
+        <!--/hover-overlay--> 
+      </div>
+    </div>
+   <?php } 
+   } else { ?>
+      <div class="noevent" style="font-size: 18px;text-align:center"><strong>No Upcoming Events found at your nearby location.</strong></span></div>
+  <?php } ?>
+   </div>

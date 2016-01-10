@@ -1,0 +1,674 @@
+<?php if (!empty($eventData)) { ?>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function (e) {
+            checkUserIsLoggedIn();
+            checkIsUserFromNextPage();
+            var pa = '<?php echo $this->basePath() . "/uploads/event/" . $eventData['eventVenueIcon'];?>';
+            
+            jQuery('#drawCanvas').html('<img src="'+pa+'" width="768" height="1024" />');
+           
+            var mapObj;
+    <?php if ($eventData['latitude'] != "" && $eventData['longitude'] != "") { ?>
+                loadegendommap(<?php echo $eventData['latitude']; ?>,<?php echo $eventData['longitude'] ?>, '<?php echo $eventData['eventAddress']; ?>');
+    <?php } ?>
+
+    <?php if (isset($eventData['id'])) { ?>
+                getEventMap(<?php echo $eventData['id']; ?>);
+    <?php } ?>
+        });
+        var cycleTimer;
+        var seatsArray = [];
+        //hightlight option
+        function hightlight() {
+            jQuery('.mapping').maphilight({
+                strokeColor: '4F95EA',
+                alwaysOn: false,
+                fillColor: '365E71',
+                fillOpacity: 0.2,
+                shadow: true,
+                shadowColor: '000000',
+                shadowRadius: 5,
+                shadowOpacity: 0.6,
+                shadowPosition: 'outside'
+            });
+        }
+        //to check user logged in or not
+        function checkUserIsLoggedIn() {
+            if (jQuery('#userId').val() === "") {
+                jQuery('#login').modal('show');
+                return false;
+            }
+        }
+        //update html pricing
+        function updateTicketsUl() {
+            var html = '';
+            var l = 0;
+            var arrayL = seatsArray.length;
+            jQuery.each(seatsArray, function (i, v) {
+                if (l !== 0) {
+                    html += '</li>';
+                }
+                var zoneArea = v.zoneTitle;
+                var seatCount = v.seatIds.length;
+                if (seatCount !== 0) {
+                    var dataPrice = jQuery('#zone_area_' + zoneArea).attr('data-price');
+                    html += '<li id="' + zoneArea + '"><label>' + zoneArea + ' Area</label>';
+                    html += '<ul>';
+                    for (var x = 0; x < seatCount; x++) {
+                        var seatID = v.seatIds[x];
+                        html += '<li id="' + seatID + '">Seat ' + seatID.split('_')[4] + ' for ' + dataPrice + ' AED</li>';
+                    }
+                    html += '</ul>';
+                }
+                l++;
+            });
+            if (l === arrayL) {
+                jQuery('#clikedZones #mySelection').html('');
+                jQuery('#clikedZones #mySelection').append(html);
+                jQuery('#totalAmount').trigger('change');
+            }
+        }
+
+        //if user come from checkout or history
+        function checkIsUserFromNextPage() {
+            var val = jQuery('#dirty > #formUsed').val();
+            if (val !== '0') {
+                var selectedSeats = jQuery('#selectedSeats').val();
+                seatsArray = JSON.parse(selectedSeats);
+            }
+        }
+        //to Upper Case
+        function toTitleCase(str) {
+            return str.replace(/(?:^|\s)\w/g, function (match) {
+                return match.toUpperCase();
+            });
+        }
+        //setting Up Event Map
+        function settingUpEventMap(mapObj, zoneTitle, n) {
+            var status = false;
+            var clickID = "-";
+            var path = '<?php echo $this->url('ajaxgetavailableseats'); ?>';
+            var userID = jQuery('#userId').val();
+
+            var scheduleID = jQuery('#scheduleId').val();
+            var eventID = jQuery('#eventId').val();
+            if (scheduleID !== "") {
+                status = true;
+            }
+            var userLogID = jQuery('#userId').val();
+            jQuery('#drawCanvas').html('');
+            jQuery('#drawCanvas').css('background', '#eee');
+            var areas = mapObj.areas;
+            var t = '';
+            var k = '';
+            var h = '<div id="mainWrap">';
+            h += '<map name="Map" id="Map">';
+            jQuery.each(areas, function (i, v) {
+                h += '<area shape="' + v.zoneType + '" id="' + v.zoneID + '" class="area" coords="' + v.zoneMaps + '" title="' + toTitleCase(v.zoneTitle) + ' Seat Price ' + v.zonePrice + ' AED" data-count="' + v.zoneCount + '" data-title="' + v.zoneTitle + '" data-price="' + v.zonePrice + '" data-type="' + v.zoneType + '">';
+                
+                k = '   Title: '+ v.zoneTitle + ' Price: ' +v.zonePrice ;
+                
+                var seats = v.zoneSeats.seatPlan;
+                if (v.zoneSeats.seatPlan){
+                    t += '<div id="zone_' + v.zoneID + '" data-price="' + v.zonePrice + '" class="zones" style="display:none;background-image:url(' + FULL_URL_PATH + '/uploads/maps/' + v.zoneSeats.mapImg + ');background-repeat:no-repeat;background-size:100% auto;height:1024px;width:768px;">'+'<div style="vertical-align:top;top:-30px;float:top;position:absolute;">'+k+'</div>';
+                    
+                    jQuery.each(seats, function (k, n) {
+                        
+                        t += '<div id="' + n.seatID + '" data-zone="' + v.zoneID + '" data-price="' + v.zonePrice + '" class="zoneSeat" style="position: absolute; cursor: pointer; left:' + n.options.left + '; top:' + n.options.top + '; width:' + n.options.width + '; height:' + n.options.height + ';border:1px solid #000;background:green;opacity:0.7;"><label class="whiteLable" style="padding:10px;color:#fff;">' + n.seatID.split('_')[1] + '</label></div>';
+                        
+                    });
+                }
+                t += '</div>';
+            });
+
+            h += '</map>';
+            h += '<img id="mainFloor" class="mapping" usemap="#Map" src="' + FULL_URL_PATH + '/uploads/maps/' + mapObj.imgName + '" alt="" width="768" height="1024">';
+            h += '</div>';
+            h += '<div id="secondWrap" style="display:none;">';
+      
+            h += '<div id="goBackBTN" style="position:absolute;right:0;top:-70px; width:768px; height:53px;"><span><b>Seats are not reserved until selected</b>&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color:green">Available</span>&nbsp;<span style="background-color:red">Selected</span>&nbsp;<span style="background-color:grey">Reserved</span>&nbsp;<span style="background-color:yellow">Sold</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="align:right;"> <button id="goBack" class="btn-blue">Back</button></span></div>';
+            h += t;
+            h += '</div>';
+          
+            if (status) {
+                jQuery.ajax({
+                    type: 'POST',
+                    url: path,
+                    dataType: 'json',
+                    //async: false,
+                    data: {'eventID': eventID, 'zoneTitle': zoneTitle, 'scheduleID': scheduleID, 'clickID': clickID, 'userID' : userLogID},
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            var zoneSeats = response.zoneSeats;
+                            var zoneDetails =  response.zone;
+                            jQuery.each(zoneSeats, function (i, v) {
+                                var c = (v.seatAvailability === 0) ? 'green' : (v.seatAvailability === 1) ? 'yellow' : (v.seatAvailability === 2 && v.userId == userLogID) ? 'red' : (v.seatAvailability === 2 && v.userId != userLogID) ? 'grey' : 'white';
+                                var d = v.seatLabel;
+                                if( c == 'red'){
+                                    if (zoneDetails.zoneTitle === zoneTitle){
+                                        addSeatToArray(eventID, scheduleID, zoneDetails.id, d, zoneDetails.zonePrice, zoneDetails.zoneTitle);
+                                    }
+                                }
+                                jQuery('#zone_area_' + zoneTitle).find('#' + d).css('background', c).removeAttr('class').addClass('zoneSeat ' + c);
+                            });
+                        }
+                    }
+                });
+            }
+
+            jQuery('#drawCanvas').css('background', '#fff');
+            jQuery('#drawCanvas').append(h);
+            
+            hightlight();
+            seatBookingOption();
+        }
+        //load ege n dom map
+        function loadegendommap(latitude, longitude, propertyAddress) {
+            var myLatlng = new google.maps.LatLng(latitude, longitude);
+            var mapProp = {
+                center: myLatlng,
+                scrollwheel: false,
+                zoom: 11,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+            var marker = new google.maps.Marker({
+                position: myLatlng,
+                map: map,
+                title: propertyAddress
+            });
+            google.maps.event.addListener(map, 'click', function () {
+                var red_url = "http://maps.google.com/?ll=" + latitude + ',' + longitude;
+                var win = window.open(red_url, '_blank');
+                win.focus();
+            });
+        }
+        //get Event Map
+        function getEventMap(eventID) {
+            var path = '<?php echo $this->url('ajaxeventmap'); ?>';
+            jQuery.ajax({
+                type: 'POST',
+                url: path,
+                dataType: 'json',
+                //async: false,
+                data: {'eventID': eventID},
+                success: function (response) {
+                    if (response.status === 'success') {
+                        mapObj = response.mapObject;
+                        settingUpEventMap(mapObj, '', '');
+                    }
+                }
+            });
+        }
+        //remove selected seats from database if times run out
+        function removeSeatSelection(obj) {
+            var eventID = jQuery('#eventId').val();
+            var scheduleID = jQuery('#scheduleId').val();
+            var titleObj = JSON.stringify(obj);
+            var path = '<?php echo $this->url('ajaxremoveselection'); ?>';
+            jQuery.ajax({
+                type: 'POST',
+                url: path,
+                dataType: 'json',
+                //async: false,
+                data: {'eventID': eventID, 'titleObj': titleObj, 'scheduleID': scheduleID},
+                success: function (response) {
+                    if (response.status === 'success') {
+                        jQuery("#errormsg").show();
+                        jQuery("#errormsg").html("Sorry you run out of time...");
+                        jQuery('#errormsg').delay(3000).fadeOut('slow', function (e) {
+                            jQuery('#clikedZones #mySelection').html('');
+                            jQuery('#totalAmount').val(0);
+                            jQuery('#totalAmount').trigger('change');
+                        });
+                    }
+                }
+            });
+        }
+        //unselect Seat Array
+        function unselectSeatArray(eventID, zoneTitle, scheduleID, clickID, priceSeat) {
+            var path = '<?php echo $this->url('ajaxunselectseatbooking'); ?>';
+            jQuery.ajax({
+                type: 'POST',
+                url: path,
+                dataType: 'json',
+                //async: false,
+                data: {'eventID': eventID, 'zoneTitle': zoneTitle, 'scheduleID': scheduleID, 'clickID': clickID},
+                success: function (response) {
+                    if (response.status === 'success') {
+                        var Id = zoneTitle + '_' + clickID.split('_')[1];
+                        var t = jQuery('#totalAmount').val();
+                        t = parseInt(t);
+                        priceSeat = parseInt(priceSeat);
+                        t = (t) - (priceSeat);
+                        jQuery('#totalAmount').val(t);
+                        updateTicketsUl();
+                        jQuery("#errormsg").show();
+                        jQuery("#errormsg").html("Seat unselected...");
+                        jQuery('#errormsg').delay(3000).fadeOut('slow');
+                    }
+                }
+            });
+        }
+        //start Timer 
+        function startTimer(duration, display) {
+            var timer = duration, minutes, seconds;
+            cycleTimer = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                display.text(minutes + ":" + seconds);
+                if (--timer < 0) {
+                    timer = duration;
+                    clearInterval(cycleTimer);//once time is done
+                    removeSeatSelection(seatsArray);
+                    settingUpEventMap(mapObj, '', '');//re setup the page
+                    cycleTimer = '';
+                    seatsArray = []; //make empty array
+                }
+            }, 1000);
+        }
+        //add Seat To Array
+        function addSeatToArray(eventID, scheduleID, zoneID, seatID, priceTag, zoneTitle) {
+            var seatObj = {'zoneTitle': '', seatIds: []};
+            if (seatsArray.length === 0) {
+                seatObj.zoneTitle = zoneTitle;
+                seatObj.seatIds.push(eventID+'_'+scheduleID+'_'+zoneID+'_'+seatID);
+                seatsArray.push(seatObj);
+            } else {
+                var index;
+                var le = seatsArray.length;
+                for (var i = 0; i < le; i++) {
+                    if (seatsArray[i].zoneTitle === zoneTitle) {
+                        index = i;
+                    }
+                }
+                var bool = false;
+                if (index >= 0) {
+                         jQuery.each(seatsArray, function (i, v) {
+                                        var seatArray = v.seatIds;
+                                        for (var c = 0; c < seatArray.length; c++) {
+                                            var tempclick = eventID+'_'+scheduleID+'_'+zoneID+'_'+seatID;
+                                            if (tempclick === seatArray[c]) {
+                                                var index1 = seatArray.indexOf(seatArray[c]);
+                                                if (index1 > -1) {
+                                                    seatArray.splice(index1, 1);
+                                                }
+                                                bool = true;
+                                            }
+                                        }
+                                    });
+                    seatsArray[index].seatIds.push(eventID+'_'+scheduleID+'_'+zoneID+'_'+seatID);
+                } else {
+                    seatObj.zoneTitle = zoneTitle;
+                    seatObj.seatIds.push(eventID+'_'+scheduleID+'_'+zoneID+'_'+seatID);
+                    seatsArray.push(seatObj);
+                }
+            }
+
+            if(!bool){
+                var s = seatID.split('_')[1];
+                if (jQuery('#totalAmount').val() === "0") {
+                    jQuery('#totalAmount').val(priceTag);
+                } else {
+                    var t = jQuery('#totalAmount').val();
+                    t = parseInt(t);
+                    priceTag = parseInt(priceTag);
+                    jQuery('#totalAmount').val(priceTag + t);
+                }
+                updateTicketsUl();
+            }
+        }
+
+        //seat Booking Option
+        function seatBookingOption() {
+            var eventID;
+            var zoneTitle;
+            var scheduleID;
+            var clickID = '';
+            var priceSeat;
+            jQuery('.zones').delegate('.zoneSeat', 'click', function (e) {
+                var bool = true;
+                clickID = jQuery(this).attr('id');
+                priceSeat = jQuery(this).attr('data-price');
+                eventID = jQuery('#eventId').val();
+                zoneTitle = jQuery(this).attr('data-zone').split('area_')[1];
+                scheduleID = jQuery('#scheduleId').val();
+                var path = '<?php echo $this->url('ajaxgetavailableseats'); ?>';
+                var userLogID = jQuery('#userId').val();
+
+                var classCk = jQuery(this).attr('class').split(' ');
+                checkUserIsLoggedIn();
+                if (jQuery('#scheduleId').val() === "") {
+                    jQuery("#errormsg").show();
+                    jQuery("#errormsg").html("Please select a date to attend");
+                    jQuery('#errormsg').delay(3000).fadeOut('slow');
+                    return false;
+                }
+                if (classCk.length > 1 && classCk[1] !== 'green') {
+                    if (classCk[1] === 'grey') {
+                        jQuery("#errormsg").show();
+                        jQuery("#errormsg").html("Sorry, you're late... seat already Reserved...");
+                        jQuery('#errormsg').delay(3000).fadeOut('slow');
+                        return false;
+                    }
+                    if (classCk[1] === 'yellow') {
+                        jQuery("#errormsg").show();
+                        jQuery("#errormsg").html("Sorry, you're late... seat already Occupied...");
+                        jQuery('#errormsg').delay(3000).fadeOut('slow');
+                        return false;
+                    }
+                    
+                }
+                if (bool) {
+                    jQuery.ajax({
+                        type: 'POST',
+                        url: path,
+                        dataType: 'json',
+                        //async: false,
+                        data: {'eventID': eventID, 'zoneTitle': zoneTitle, 'scheduleID': scheduleID, 'clickID': clickID, 'userID' : userLogID},
+                        success: function (response) {
+                            if (response.status === 'success') {
+                                var zoneSeats = response.zoneSeats;
+                                var zone = response.zone;
+                                
+                                jQuery.each(zoneSeats, function (i, v) {
+                                    
+                                var c = (v.seatAvailability === 0) ? 'green' : (v.seatAvailability === 1) ? 'yellow' : (v.seatAvailability === 2 && v.userId == userLogID) ? 'red' : (v.seatAvailability === 2 && v.userId != userLogID) ? 'grey' : 'white';
+                                var d = v.seatLabel;
+                                var s = jQuery('#zone_area_' + zoneTitle).find('#' + d).attr('class').split(' ');
+                                jQuery('#zone_area_' + zoneTitle).find('#' + d).css('background', c).removeAttr('class').addClass(s[0] + ' ' + s[1] + ' ' + c);
+//                                    jQuery('#zone_area_' + zoneTitle).find('#' + d).css('background', c).removeAttr('class').addClass('zoneSeat ' + c);
+                                });
+                                
+                                if (response.available === 1) {
+                                    jQuery("#errormsg").show();
+                                    jQuery("#errormsg").html("Sorry, you're late... seat already Occupied...");
+                                    jQuery('#errormsg').delay(3000).fadeOut('slow');
+                                    return false;
+                                } else if (response.available === 2 && response.selectedUserId == userLogID){
+                                    
+                                    jQuery.each(seatsArray, function (i, v) {
+                                        var seatArray = v.seatIds;
+                                        for (var c = 0; c < seatArray.length; c++) {
+                                            var tempclick = eventID+'_'+scheduleID+'_'+zone.id+'_'+clickID;
+                                            if (tempclick === seatArray[c]) {
+                                                var index = seatArray.indexOf(seatArray[c]);
+                                                if (index > -1) {
+                                                    seatArray.splice(index, 1);
+                                                }
+                                                unselectSeatArray(eventID, zoneTitle, scheduleID, clickID, priceSeat);
+                                                var s = jQuery('#zone_area_' + zoneTitle).find('#' + clickID).attr('class').split(' ');
+                                                jQuery('#zone_area_' + zoneTitle).find('#' + clickID).css('background', 'green').removeAttr('class').addClass(s[0] + ' ' + s[1] + ' ' + 'green');
+                    //                                jQuery('#zone_area_' + zoneTitle).find('#' + clickID).removeAttr('class').addClass('zoneSeat green').css('background', 'green');
+                                                bool = false;
+                                                return false;
+                                            }
+                                        }
+                                    });
+
+                                } else {
+
+                                    var s = jQuery('#zone_area_' + zoneTitle).find('#' + clickID).attr('class').split(' ');
+                                    jQuery('#zone_area_' + zoneTitle).find('#' + clickID).css('background', 'red').removeAttr('class').addClass(s[0] + ' ' + s[1] + ' ' + 'red');
+                                    //                                    jQuery('#zone_area_' + zoneTitle).find('#' + clickID).css('background', 'yellow').removeAttr('class').addClass('zoneSeat ' + 'yellow');
+                                    var fiveMinutes = 60 * 5, display = $('#time');//5 minutes
+                                    if (typeof cycleTimer === 'undefined') {//first time
+                                        startTimer(fiveMinutes, display);
+                                        addSeatToArray(eventID, scheduleID, zone.id, clickID, priceSeat, zoneTitle);
+                                    } else if (cycleTimer === '') {//after timer clear
+                                        startTimer(fiveMinutes, display);
+                                        addSeatToArray(eventID, scheduleID, zone.id, clickID, priceSeat, zoneTitle);
+                                    } else {//while timer runing 
+                                        addSeatToArray(eventID, scheduleID, zone.id, clickID, priceSeat, zoneTitle);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+            jQuery('#goBack').on('click', function (e) {
+                jQuery('#secondWrap').hide();
+                jQuery('.zones').hide();
+                jQuery('#mainWrap').show();
+                jQuery('#venueclickhelptext').show();
+            });
+            jQuery("#totalAmount").on('change', function (e) {
+                jQuery('.buy-tickets #totalVal').html(jQuery(this).val());
+            });
+            updateTicketsUl();
+        }
+        //get Event Schedule Id
+        function getEventScheduleId(eventID, eventDate, eventTime, tmpTime) {
+            checkUserIsLoggedIn();
+            var dateFormat = jQuery.datepicker.formatDate('MM dd, yy', new Date(eventDate));
+            var path = '<?php echo $this->url('ajaxgeteventscheduleid'); ?>';
+            jQuery.ajax({
+                type: 'POST',
+                url: path,
+                dataType: 'json',
+                //async: false,
+                data: {'eventID': eventID, 'eventDate': eventDate},
+                success: function (response) {
+                    if (response.status === 'success') {
+                        jQuery('#selectDateDiv').hide();
+                        var id = response.scheduleID[0].id;
+                        jQuery('#scheduleId').val(id);
+                        jQuery('#eventDate').val(eventDate);
+                        jQuery('#eventTime').val(tmpTime);
+                        jQuery('#selectedDateDiv span#selectedDate').html(dateFormat);
+                        jQuery('#selectedDateDiv span#selectedTime').html(eventTime);
+                        jQuery('#selectedDateDiv').show();
+                    }
+                }
+            });
+        }
+    </script>
+    <?php
+    $commonViewHelper = $this->Commonviewhelper();
+    ?>
+    <div class="event-wrapper" style="background:url(<?php echo $this->basePath() . '/uploads/event/' . $eventData['eventImageBig']; ?>) no-repeat  center top #1f2b30;">
+        <div class="event-row">
+            <div class="event-column event-dates">
+                <div id="selectedDateDiv" data-toggle="dropdown" class="row selected-date" style="display:none;">
+                    <div class="col-md-6"><i class="icon-color-blue cal"></i><br><span id="selectedDate">April 16, 2015</span> </div>
+                    <div class="col-md-6 border-left"><i class="icon-color-blue clock"></i><br><span id="selectedTime">09:00 PM</span></div>
+                    <span class="caret"></span>
+                </div>
+                <div id="selectDateDiv" data-toggle="dropdown" class="date-to-attend">
+                    <img src="<?php echo $this->basePath(); ?>/assets/frontend/images/icon-cal.png" alt="">
+                    <span class="select">please select a <br>date to attend</span><span class="caret"></span>
+                </div>
+                <ul id="eventDetails" class="dropdown-menu">
+                    <?php
+                    $dateArr = Array();
+                    $timeArr = Array();
+                    $k = 0;
+                    foreach ($eventData['eventSchedule'] as $eventSchedule) {
+                        $k++;
+                        ?>
+                        <?php
+                        $currentDate = strtotime(date('Y-m-d'));
+                        $eventDate = strtotime($eventSchedule->getEventDate()->format('Y-m-d'));
+                        $eventTime = strtotime($eventSchedule->getEventTime()->format('H:i:s'));
+                        $currentTime = strtotime(date('H:i:s'));
+                        if ($eventDate > $currentDate) {
+                            $dateArr[] = $eventSchedule->getEventDate()->format('Y-m-d');
+                            $timeArr[] = $eventSchedule->getEventTime()->format('H:i:s');
+                            ?>
+                            <li id="date_<?= $k; ?>" style="cursor:pointer;" onclick="getEventScheduleId('<?php echo $eventData['id']; ?>', '<?php echo $eventSchedule->getEventDate()->format('Y-m-d'); ?>', '<?php echo $eventSchedule->getEventTime()->format('h:i A'); ?>', '<?php echo $eventSchedule->getEventTime()->format('H:i:s'); ?>');">
+                                <div class="row">
+                                    <div class="col-md-6"><i class="icon-color-blue cal"></i><?php echo $eventSchedule->getEventDate()->format('F d, Y'); ?> </div>
+                                    <div class="col-md-6"><i class="icon-color-blue clock"></i><?php echo $eventSchedule->getEventTime()->format("h:i A"); ?> </div>
+                                </div>
+                            </li>
+                            <?php
+                        } elseif (($eventDate == $currentDate) && ($eventTime > $currentTime)) {
+                            $dateArr[] = $eventSchedule->getEventDate()->format('Y-m-d');
+                            $timeArr[] = $eventSchedule->getEventTime()->format('H:i:s');
+                            ?>
+                            <li id="date_<?= $k; ?>" style="cursor:pointer;" onclick="getEventScheduleId('<?php echo $eventData['id']; ?>', '<?php echo $eventSchedule->getEventDate()->format('Y-m-d'); ?>', '<?php echo $eventSchedule->getEventTime()->format('h:i A'); ?>', '<?php echo $eventSchedule->getEventTime()->format('H:i:s'); ?>');">
+                                <div class="row">
+                                    <div class="col-md-6"><i class="icon-color-blue cal"></i><?php echo $eventSchedule->getEventDate()->format('F d, Y'); ?> </div>
+                                    <div class="col-md-6"><i class="icon-color-blue clock"></i><?php echo $eventSchedule->getEventTime()->format("h:i A"); ?> </div>
+                                </div>
+                            </li>
+                        <?php } else { ?>
+                            <li id="date_<?= $k; ?>">
+                                <div class="row">
+                                    <div class="col-md-6"><i class="icon-color-blue cal"></i><?php echo $eventSchedule->getEventDate()->format('F d, Y'); ?> </div>
+                                    <div class="col-md-6"><i class="icon-color-blue clock"></i><?php echo $eventSchedule->getEventTime()->format("h:i A"); ?> </div>
+                                </div>
+                            </li>
+                            <?php
+                        }
+                    }
+                    ?>
+                </ul>
+            </div>
+            <!--/event-dates-->
+            <div class="event-column event-description">
+                <h2 class="heading42"><?php echo $eventData["eventName"]; ?><span class="text-blue"><?php echo $eventData['eventArtist']; ?></span></h2>
+                <div class="show-more-content">
+                    <p><?php echo $eventData['eventDesc']; ?></p>
+                    <?php if (!empty($eventData['eventLink']) or $eventData['eventLink'] != null) { ?>
+                        <a href="<?php echo $eventData['eventLink']; ?>"><?php echo $eventData['eventLink']; ?></a>
+                    <?php } ?>
+                    <div class="icon-list">
+                        <?php
+                        foreach ($mainOptions as $mainOption) {
+                            if (in_array($mainOption->getId(), $eventData['eventOption'])) {
+                                ?>
+                                <a data-toggle="tooltip" title="<?php echo $mainOption->getName(); ?> allowed">
+                                    <i class="<?php echo $mainOption->getIcon(); ?>"></i></a>
+                            <?php } else { ?>
+                                <a class="not-allow" data-toggle="tooltip" title="<?php echo $mainOption->getName(); ?> not allowed">
+                                    <i class="<?php echo $mainOption->getIcon(); ?>"></i></a>
+                                <?php
+                            }
+                        }
+                        ?>
+
+                    </div>
+                </div>
+                <div class="text-center"><a href="javascript:void(0)" class="show-more">show more<br>
+                        <i class="icon-more"></i></a>
+                </div>
+            </div>
+            <!--/event-description-->
+            <div class="event-column event-location">
+                <div class="media">
+                    <div class="media-body"><img height="40" src="<?php echo $this->basePath(); ?>/uploads/event/<?php echo $eventData['eventVenueIcon']; ?>" alt="">
+                        <h4 class="text-blue"><?php echo $eventData['eventVenueTitle']; ?></h4>
+                        <span class="text"><?php echo $eventData['eventCity']; ?></span>
+                        <p><?php echo $eventData['eventCountry']; ?></p>
+                    </div>
+                    <div id="googleMap" class="media-right"></div>
+                </div>
+                <!--/media--> 
+            </div>
+            <!--/event-location--> 
+        </div>
+    </div>
+    <div class="container main">
+        <div class="event-contents">
+            <div class="row">
+                <div class="col-md-4 col-sm-6">
+                    <div class="row">
+                        <p>Time remaining to complete payment <span id="time">05:00</span> minutes!</p>
+                    </div>
+                    <div class="row">
+                        <form id="dirty" name="dirty">
+                            <input type="hidden" id="formUsed" name="formUsed" value="0" />
+                        </form>
+                        <form id="frmTickets" name="frmTickets" method="post" action="<?php echo $this->url('checkout'); ?>">
+                            <input type="hidden" id="eventId" name="eventId" value="<?php echo $eventData['id']; ?>" />
+                            <input type="hidden" id="eventDate" name="eventDate" value="" />
+                            <input type="hidden" id="eventTime" name="eventTime" value="" />
+                            <input type="hidden" id="scheduleId" name="scheduleId" value="" />
+                            <input type="hidden" id="totalAmount" name="totalAmount" value="0" />
+                            <input type="hidden" id="selectedSeats" name="selectedSeats" value="" />
+                            <input type="hidden" id="userId" name="userId" value="<?php echo $userId; ?>" />
+                            <ul id="tickets_ul">
+                                <li class="buy-tickets">
+                                    <p>Seat selected : </p>
+                                    <div id="clikedZones">
+                                        <ul id="mySelection"></ul>
+                                    </div>
+                                    <div class="total">
+                                        <label>total</label>
+                                        <span id="totalVal">0</span> AED
+                                    </div>
+                                </li>
+                                <?php if ($userId) { ?>
+                                    <input id="submitbtn" type="button" class="btn-blue pull-right" value="buy tickets" />
+                                <?php } else { ?>
+                                    <a class="btn-blue pull-right" data-target="#login" data-toggle="modal" href="javascript:void(0)">buy tickets</a>
+                                <?php } ?>
+                                <span id="errormsg" style="color:red;"></span>
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-8 col-sm-6">
+                    <div id="venueclickhelptext">Please click on the marked zones on the venue seat layout to book seats</div>
+                    <div style="width: 758px; position: relative; max-height: 1024px;min-height: 1024px;" id="drawCanvas"></div>
+                </div>
+            </div>
+        </div>
+        <!--/event-contents--> 
+    </div>
+    <?php
+}
+?>
+<script type="text/javascript">
+    jQuery(document).ready(function (e) {
+        jQuery('#drawCanvas').delegate('.area', 'click', function (e) {
+            checkUserIsLoggedIn();
+            if (jQuery('#scheduleId').val() !== "") {
+                var id = jQuery(this).attr('id');
+                var zoneTitle = id.split('area_')[1];
+                var dataTitle = jQuery(this).attr('data-title');
+                var dataPrice = jQuery(this).attr('data-price');
+                var dataCount = jQuery(this).attr('data-count');
+                settingUpEventMap(mapObj, zoneTitle, '');
+                jQuery('#mainWrap').hide();
+                jQuery('#zone_' + id).show();
+                jQuery('#venueclickhelptext').hide();
+                jQuery('#secondWrap').show();
+                jQuery('html, body').animate({scrollTop: 100}, "slow");
+            } else {
+                jQuery("#errormsg").show();
+                jQuery("#errormsg").html("Please select a date to attend");
+                jQuery('#errormsg').delay(3000).fadeOut('slow');
+            }
+        });
+        jQuery("#frmTickets").delegate("#submitbtn", "click", function (e) {
+            e.preventDefault();
+            checkUserIsLoggedIn();
+            if (seatsArray.length === 0) {
+                jQuery("#errormsg").show();
+                jQuery("#errormsg").html("Please select a seat...");
+                jQuery('#errormsg').delay(3000).fadeOut('slow');
+            } else if (seatsArray[0].seatIds.length > 0) {
+                jQuery('#dirty > #formUsed').val(1);
+                var selectedSeats = JSON.stringify(seatsArray);
+                jQuery('#selectedSeats').val(selectedSeats);
+                jQuery("#errormsg").show();
+                jQuery("#errormsg").html("Will submit in few seconds...");
+                jQuery('#errormsg').delay(3000).fadeOut('slow', function (e) {
+                    frmTickets.submit();
+                });
+            } else {
+                jQuery("#errormsg").show();
+                jQuery("#errormsg").html("Please select a seat...");
+                jQuery('#errormsg').delay(3000).fadeOut('slow');
+            }
+        });
+    }
+    );
+</script>
+<script type="text/javascript" src="<?php echo $this->basePath(); ?>/assets/admin/scripts/jquery.maphilight.min.js"></script>

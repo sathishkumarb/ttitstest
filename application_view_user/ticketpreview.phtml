@@ -1,0 +1,130 @@
+<?php
+//$ticket_type = explode(",",$this->tickettype);
+//$ticket_type_arr = array_pop($ticket_type);
+//$tickettype = (array_unique($ticket_type));
+//trim($string, ",")
+//$seats = trim($this->seatnumber,',');
+?>
+<script type="text/javascript">
+    $(document).ready(function(){
+       $('.container.main').each(function() {
+        $(this).addClass('mtop-55');
+      });
+    });
+</script>
+<script src="<?php echo $this->basePath() ?>/assets/frontend/css/theme-style.css"></script>
+<!--<div class="container main mtop-55"> -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="ticket-preview">
+                <?php if($this->status == 0){ ?>
+                <h2 class="heading">No Tickets found</h2>
+                <?php }else{  if ($this->PayId) {?> 
+                    <div class="success_message"> Your Order Id <?php echo $this->bookingid;?> payment is success.</div>  
+                <?}?>             
+                <h2 class="heading"><a class="btn-blue pull-right" target="_blank" href="<?php echo $this->url('printticket',array('bookingid' => $this->bookingid)) ?>">Print Tickets</a><span>Ticket Preview</span></h2>
+                <ul>
+                    <?php for($i=1;$i<=count($this->seatobj);$i++){ ?>
+                    <li>
+                        <div class="ticket-details">
+                            <h4 class="heading42"><?php echo $this->eventobj['event_artist'] ?><span><?php echo $this->eventobj['event_name'] ?></span></h4>
+                            <ul>
+                                <li>
+                                    <label>Date</label>
+                                    <span><?php echo $this->bookingobj['event_date']->format('d M Y'); ?></span></li>
+                                <li>
+
+                                    <label>Time</label>
+                                    <span><?php echo $this->bookingobj['event_time']->format('h:i A'); ?></span></li>
+
+                                <li>
+
+                                    <label>Location</label>
+                                    <span><?php echo $this->eventobj['event_venue']; ?></span></li>
+                                <li>
+
+                                    <label>Seat</label>
+                                    <span><?php echo $this->seatobj[$i]['seatno'] ?></span></li>
+
+
+                                <li>
+
+                                    <label>Entrance</label>
+                                    <span><?php echo $this->seatobj[$i]['entrance'] ?></span></li>
+                                <li>
+
+                                    <label>Ticket Type</label>
+                                    <span><?php echo $this->seatobj[$i]['ticket_type'] ?></span></li>
+                                <li>
+
+                                    <label>Redeem on</label>
+                                    <span><?php echo $this->seatobj[$i]['redeem_on'] ?></span></li>
+                                <li>
+
+                                    <label>Price</label>
+                                    <span><?php echo $this->bookingobj['total_price'] ?> AED</span></li>                                                                
+                            </ul>
+
+                        </div>
+                        <div class="ticket-order">
+                            <img width="85" src="<?php echo $this->basePath() ?>/assets/frontend/classes/qr-code/php/qr_img.php?d=<?php echo $this->seatobj[$i]['seatid']; ?>" class="pull-right" />
+                            <!--<img src="images/img-qr.png" alt="" class="pull-right">-->
+                            <div class="clearfix"></div>
+                            <ul>
+                                <li>
+                                    <label>Date of order</label>
+                                    <span><?php echo $this->seatobj[$i]['order_date']->format('d M Y') ?></span>
+                                </li>
+                                <li>
+                                    <label>Price</label>
+                                    <span><?php echo $this->seatobj[$i]['price_single'] ?> AED</span>
+                                </li>
+                            </ul>
+                            <img src="<?php echo $this->basePath() ?>/assets/frontend/images/img-logo-thumb.png" alt="" class="pull-right">
+                        </div><!--/ticket-order-->
+                    </li>
+                <?php } ?>
+                </ul>
+
+            </div><!--/ticket-preview-->
+        </div>
+        <div class="col-md-4">
+            <div class="sidebar">
+                <div class="tickets-details">
+                    <h3 class="heading-blue">ticket details</h3>
+                    <h4 class="heading-18"><?php echo $this->eventobj['event_artist'] ?><span class="text-gray"><?php echo $this->eventobj['event_venue'] ?></span></h4>
+                    <span class="block bold"><?php echo $this->bookingobj['event_date']->format('d M Y') ." • ".  $this->bookingobj['event_time']->format('h:i A'); ?> </span><br>                    
+                    <?php foreach($seatnumber as $type=>$seatnumber){ ?>
+                            <span class="block bold"><?php echo $type ?></span> 
+                            <span class="text-gray">ticket no 
+                            <?php 
+                            $j=1;
+                            foreach($seatnumber as $seat){ ?>
+                            <?php echo $seat;  
+                                if($j != count($seatnumber))
+                                echo ",";
+                                ++$j;
+                             } ?>                             
+                            </span>
+                        <?php } ?>
+                </div><!--/ticket details-->
+                <h3 class="heading-blue">order summary</h3>
+
+                <ul class="order-summary">
+                    <?php $totalPrice = 0; foreach($seatPrice as $price => $qty){ $totalPrice = $totalPrice + $price * count($qty); ?>
+                    <li>
+                        <label>Price</label> <?php echo $price ?> AED <span class="text-gray">each</span>
+                    </li>
+                    <li>
+                        <label>Quantity</label> x <?php echo count($qty); ?> tickets
+                    </li>
+                    <?php } ?>
+                    <li><label>Payed with</label><!--<img src="images/img-card.png" alt="" >--></li>
+                    <li><?php echo $bookingobj['card_no']; ?></li>
+                </ul>
+                <div class="total-aed"><span class="text-gray">Total</span><?php echo $totalPrice; ?> AED</div>
+                <?php } ?>                
+            </div><!--/sidebar-->
+        </div>
+    </div><!--/row-->
+<!--</div>-->

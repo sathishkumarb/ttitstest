@@ -1,0 +1,731 @@
+<div class="container main mtop-55">
+
+    <link href='http://fonts.googleapis.com/css?family=Lato:400,300,700' rel='stylesheet' type='text/css'>
+
+    <link href='http://fonts.googleapis.com/css?family=Raleway:400,300,700' rel='stylesheet' type='text/css'>
+
+    <link href='http://fonts.googleapis.com/css?family=Varela+Round' rel='stylesheet' type='text/css'>
+
+    <link href="<?php echo $this->basePath('/assets/frontend/css/bootstrap.min.css'); ?>" rel="stylesheet" type="text/css">
+
+    <link href="<?php echo $this->basePath('/assets/frontend/css/font-awesome.min.css'); ?>" rel="stylesheet" type="text/css">
+
+    <link href="<?php echo $this->basePath('/assets/frontend/css/theme-style.css'); ?>" rel="stylesheet" type="text/css">
+
+    <link href="<?php echo $this->basePath('/assets/frontend/css/custom-style.css'); ?>" rel="stylesheet" type="text/css">
+
+    <script type="text/javascript">
+
+        var FULL_URL_PATH = '<?php echo $this->url('home', array(), array('force_canonical' => true)); ?>';
+
+    </script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.4/underscore-min.js"></script>
+
+    <script src="<?php echo $this->basePath('/assets/frontend/js/bootstrap.min.js'); ?>"></script>
+
+    <script src="<?php echo $this->basePath('/assets/frontend/js/bootstrap3-typeahead.min.js'); ?>"></script>
+
+    <script src="<?php echo $this->basePath('/assets/frontend/js/common.js'); ?>"></script>
+
+    <script src="<?php echo $this->basePath('/js/jquery.validate.js'); ?>"></script>
+
+    <script src="<?php echo $this->basePath(); ?>/assets/jquery-countdownTimer/jquery.countdownTimer.js"></script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+            //timer=setTimeout(function(){ window.location='<?php //echo $this->url('checkouttimeout', array('eventId' => $eventData['id']))                   ?>';}, 60000) ;
+
+            $("#timer").countdowntimer({
+
+                minutes: 15,
+
+                size: "lg"
+
+            });
+
+        });
+
+    </script>
+
+    <style type="text/css">
+
+        li.zone {
+
+            font-weight: bold;
+
+        }
+
+        span.seatLable {
+
+            margin-left: 10px;
+
+        }
+
+    </style>
+
+    <?php
+
+    $postedData = $checkoutContainer;
+
+    ?>
+
+    <div class="row">
+
+        <div class="col-md-8 col-lg-8 col-sm-8">
+
+            <div class="checkout">
+
+                <h2 class="heading"><span>Checkout</span></h2>
+
+                <p class="order-time">Time left to complete your order is <span id="timer"></span></p>
+
+                <!--<div id="countdowntimer"><span id="timer"></span></div>-->
+
+                <div class="row form-element">
+
+                    <div class="col-md-8 col-sm-8">
+
+                        <!--<form>-->
+
+                        <?php
+
+                        $form = $this->form;
+
+                        $form->setAttribute('action', $this->url('confirmorder'));
+
+                        $form->prepare();
+
+                        echo $this->form()->openTag($form);
+
+                        ?>
+
+                        <div class="method ticket-qty">
+
+                            <div class="media">
+
+                                <div class="media-left">Ticket quantity</div>
+
+                                <div class="media-body">
+
+                                    <!--<input type="number" class="form-control"  placeholder="<?php //echo $totalQty;        ?>" readonly="readonly">-->
+
+                                    <?php echo $this->formRow($form->get('quantity')); ?>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="method">
+
+                            <h5>Contact information</h5>
+
+                            <div class="form-group">
+
+                              <!--<input type="email" class="form-control"  placeholder="karim@pepperweb.co">-->
+
+                                <?php echo $this->formRow($form->get('email')); ?>
+
+                            </div>
+
+                            <div class="form-group">
+
+                              <!--<input type="text" class="form-control"  placeholder="+971 1765216761">-->
+
+                                <?php echo $this->formRow($form->get('phoneno')); ?>
+
+                            </div>
+
+                        </div>
+
+                        <!--/Contact information-->
+
+                        <!--                        <div class="method">
+
+                                                    <h5>Payment Method</h5>
+
+                                                    <img alt="" src="<?php //echo $this->basePath();    ?>/assets/frontend/images/img-payments.png" class="img-cards">
+
+                                                    <div class="form-group">
+
+                        <?php //echo $this->formRow($form->get('saved_cards')); ?>
+
+                                                    </div>
+
+                                                    <div class="form-group">
+
+                        <?php //echo html_entity_decode($this->formRow($form->get('card_type'))); ?>
+
+                                                    </div>
+
+                                                    <div class="form-group">
+
+                                                    <input type="text" placeholder="xxxx - xxxx - xxxx - 7234" class="form-control invalid">
+
+                        <?php //echo $this->formRow($form->get('cardno')); ?>
+
+                                                        <div class="error-msg">please insert a valid card number</div>
+
+                                                    </div>
+
+                                                    <div class="form-group">
+
+                                                        <div class="row">
+
+                                                            <div class="col-md-5">
+
+                                                             <input type="text" placeholder="Security Code" class="form-control">
+
+                        <?php //echo $this->formRow($form->get('securityno')); ?>
+
+                                                            </div>
+
+                                                            <div class="col-md-1"><label class="exp"> EXP.</label></div>
+
+                                                            <div class="col-md-3">
+
+                                                             <input type="text" placeholder="Security Code" class="form-control">
+
+                        <?php //echo $this->formRow($form->get('month')); ?>
+
+                                                            </div>
+
+                        
+
+                                                            <div class="col-md-3">
+
+                                                             <input type="text" placeholder="Security Code" class="form-control">
+
+                        <?php //echo $this->formRow($form->get('year')); ?>
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>-->
+
+                        <!--/Payment Method-->
+
+                        <div class="method">
+
+                            <h5>billing address</h5>
+
+                            <div class="form-group">
+
+                              <!--<input type="text" class="form-control"  placeholder="Karim">-->
+
+                                <?php echo $this->formRow($form->get('firstname')); ?>
+
+                            </div>
+
+                            <div class="form-group">
+
+                              <!--<input type="text" class="form-control"  placeholder="Hachani">-->
+
+                                <?php echo $this->formRow($form->get('lastname')); ?>
+
+                            </div>
+
+                            <div class="form-group">
+
+                              <!--<input type="text" class="form-control"  placeholder="Street Address">-->
+
+                                <?php echo $this->formRow($form->get('streetaddress')); ?>
+
+                            </div>
+
+                            <div class="form-group">
+
+                              <!--<select class="form-control input-lg select4">
+
+                                <option></option>
+
+                                <optgroup label="City">
+
+                                <option value="AJ">Ajman</option>
+
+                                <option value="DU">Dubai</option>
+
+                                </optgroup>
+
+                                <optgroup label="State">
+
+                                <option value="CA">California</option>
+
+                                <option value="NV">Nevada</option>
+
+                                <option value="OR">Oregon</option>
+
+                                <option value="WA">Washington</option>
+
+                                </optgroup>
+
+                              </select>-->
+
+                                <?php echo $this->formRow($form->get('country')); ?>
+
+                            </div>
+
+                            <div class="form-group">
+
+                              <!--<select class="form-control input-lg select5">
+
+                                <option></option>
+
+                                <option value="UA">United Arab Emirates</option>
+
+                              </select>-->
+
+                                <?php echo $this->formRow($form->get('city')); ?>
+
+                            </div>
+
+                            <div class="form-group checkbox-custom termscheck">
+
+                                <div class="checkbox-box">
+
+                                  <!--<input type="checkbox" id="box-chk" />-->
+
+                                    <?php echo $this->formRow($form->get('box-chk')); ?>
+
+                                    <label for="box-chk" class="for-checkbox">&nbsp;</label>
+
+                                </div>
+
+                                I agree to TapeTickets terms &amp; services </div>
+
+                            <button class="btn-blue"  type="submit"  onClick="">Continue</button>
+
+                        </div>
+
+                        <!--/Billing Address-->
+
+                        <?php echo $this->form()->closeTag(); ?>
+
+                        <!--</form>-->
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!--/ticket-preview--> 
+
+        </div>
+
+        <div class="col-md-4 col-lg-4 col-sm-4">
+
+            <div class="sidebar">
+
+                <div class="tickets-details">
+
+                    <h3 class="heading-blue">ticket details</h3>
+
+                    <h4 class="heading-18"><?php echo $eventData['eventName'] ?><span class="text-gray"><?php echo $eventData['eventVenueTitle'] ?></span></h4>
+
+                    <span class="block bold">
+
+                        <?php
+
+                        $date = date('F d, Y', strtotime($postedData['eventDate']));
+
+                        $time = date('h:i A', strtotime($postedData['eventTime']));
+
+                        echo $date . "&nbsp;&nbsp;•&nbsp;&nbsp;" . $time;
+
+                        //April 16, 2015  •  09:00 PM 
+
+                        ?>
+
+                    </span>
+
+                </div>
+
+                <!--/ticket details-->
+
+                <h3 class="heading-blue">order summary</h3>
+
+                <ul id="selectedSeats">
+
+                    <?php
+
+                    foreach ($selectedSeats as $row) {
+
+                        ?><li class="zone"><?= ucwords($row->zoneTitle); ?></li><?php
+
+                            foreach ($row->seatIds as $Id) {
+
+                                ?><span class="seatLable"><?= explode("_", $Id)[4]; ?></span>,<?php
+
+                            }
+
+                        }
+
+                        ?>
+
+                </ul>
+
+                <div class="total-aed"><span class="text-gray">Total</span><?php echo $postedData['totalAmount']; ?> AED</div>
+
+            </div>
+
+            <!--/sidebar--> 
+            <div style="padding-top:20px;">
+                <span><input id="backbtn" type="button" class="btn-blue pull-right" value="Change Seats" /></span>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!--/row--> 
+
+</div>
+
+<!--/main-->
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#backbtn').click(function(){
+        parent.history.back();
+        return false;
+    });
+
+        $("#checkoutform").validate({
+
+            errorClass: 'valerror',
+
+            rules: {
+
+                email: {required: true, email: true},
+
+                phoneno: {required: true},
+
+                saved_cards: {required: true},
+
+                card_type: {required: true},
+
+                cardno: {maxlength: 16, htmltags: true, required: true},
+
+                securityno: {required: true, htmltags: true},
+
+                month: {required: true, positiveNumber: true},
+
+                year: {required: true, positiveNumber: true},
+
+                firstname: {required: true, htmltags: true},
+
+                lastname: {required: true, htmltags: true},
+
+                streetaddress: {required: true, htmltags: true},
+
+                city: {required: true},
+
+                country: {required: true},
+
+                'box-chk': {required: true}
+
+            },
+
+            messages: {
+
+                email: {
+
+                    required: "Please enter email",
+
+                    email: "Please enter valid email address"
+
+                },
+
+                phoneno: {
+
+                    required: "Please enter phone no",
+
+                },
+
+                card_type: {
+
+                    required: "Please select card type"
+
+                },
+
+                saved_cards: {
+
+                    required: "Please choose any saved card or new card for checkout."
+
+                },
+
+                cardno: {
+
+                    maxlength: "Card Number cannot exceed 16 Characters",
+
+                    htmltags: "HTML Tags not supported",
+
+                    required: "Please enter card number"
+
+                },
+
+                securityno: {
+
+                    htmltags: "HTML tags not supported",
+
+                    required: "Please enter security code"
+
+                },
+
+                month: {
+
+                    required: "Please select expiry month of card",
+
+                    positiveNumber: "Please check card expiry month"
+
+                },
+
+                year: {
+
+                    required: "Please select expiry year of card",
+
+                    positiveNumber: " Please check card expiry year"
+
+                },
+
+                firstname: {
+
+                    htmltags: "HTML tags not supported",
+
+                    required: "Please enter first name"
+
+                },
+
+                lastname: {
+
+                    htmltags: "HTML tags not supported",
+
+                    required: "Please enter last name"
+
+                },
+
+                streetaddress: {
+
+                    htmltags: "HTML tags not supported",
+
+                    required: "Please enter street address"
+
+                },
+
+                city: {
+
+                    required: "Please select city"
+
+                },
+
+                country: {
+
+                    required: "Please select country"
+
+                },
+
+                'box-chk': {
+
+                    required: "Please agree to our terms and services"
+
+                },
+
+            }/*,
+
+             submitHandler: function(form) {
+
+             var formData = $("#checkoutform").serialize();                                                   
+
+             $.post('<?php echo $this->url('confirmorder'); ?>', formData, function(response){
+
+             var obj = jQuery.parseJSON( response );
+
+             var status = obj.status;
+
+             var msg = obj.msg;                                  
+
+             if(status == 1){
+
+             
+
+             }else if(status == -1){                               
+
+             
+
+             }else{
+
+             
+
+             }
+
+             });
+
+             }*/
+
+        });
+
+
+
+        $.validator.addMethod("htmltags", checkHTMLTags);
+
+        $.validator.addMethod('positiveNumber',
+
+                function (value) {
+
+                    return Number(value) > 0;
+
+                }, 'Enter a positive number.');
+
+
+
+        jQuery("#saved_cards").change(function (e) {
+
+            var activecard = this.value;
+
+            //$('#editcard #cardid').val(activecard);  
+
+            if (activecard != "") {
+
+                //var url = FULL_URL_PATH+"event/getusercarddet/"+activecard;   
+
+                if (activecard == 0) {
+
+                    disabledToggle(1);
+
+                    makeFieldsBlank();
+
+                    return;
+
+                }
+
+                var url = FULL_URL_PATH + "getcarddetails/" + activecard;
+
+                $.post(url, function (response) {
+
+                    var obj = jQuery.parseJSON(response);
+
+                    var status = obj.status;
+
+                    if (status == 1) {
+
+                        //$("#editcard .title").val(obj.card.title);
+
+                        disabledToggle(1);
+
+                        $("#cardno").val(atob(obj.card.cardno));
+
+                        $("#month").val(obj.card.month);
+
+                        $("#year").val(obj.card.year);
+
+                        $("input:radio[name=card_type][value=" + obj.card.cardtype + "]").attr('checked', 'checked');
+
+                    } else if (status == -1) {
+
+                        alert(msg);
+
+                        //window.location = '<?php echo $this->url('home') ?>';
+
+                    } else {
+
+                        /* $(".cardform .alert-error").html(msg);
+
+                         $(".cardform .alert-error").show();
+
+                         $(".cardform .alert-success").hide(); */
+
+                    }
+
+                });
+
+            } else {
+
+                alert("Select any saved card");
+
+                makeFieldsBlank();
+
+                disabledToggle(0);
+
+            }
+
+        });
+
+    });
+
+    function makeFieldsBlank() {
+
+        $("#cardno").val("");
+
+        $("#month").val("");
+
+        $("#year").val("");
+
+    }
+
+    function disabledToggle(toggleVal) {
+
+        if (toggleVal) {
+
+            $("#cardno").prop("disabled", false);
+
+            $("#securityno").prop("disabled", false);
+
+            $("#month").prop("disabled", false);
+
+            $("#year").prop("disabled", false);
+
+            $('input:radio[name=card_type]').prop("disabled", false);
+
+        } else {
+
+            $("#cardno").prop("disabled", true);
+
+            $("#securityno").prop("disabled", true);
+
+            $("#month").prop("disabled", true);
+
+            $("#year").prop("disabled", true);
+
+            $('input:radio[name=card_type]').prop("disabled", true);
+
+        }
+
+    }
+
+    function getCity(countryid) {
+
+        if (countryid != "") {
+
+            var fetch_city_url = "<?php echo $this->url('getcity'); ?>" + countryid;
+
+            $.ajax({
+
+                url: fetch_city_url
+
+            }).done(function (data) {
+
+                $('#city').html(data);
+
+            });
+
+        } else {
+
+            $('#city').val("");
+
+        }
+
+    }
+
+</script>
+

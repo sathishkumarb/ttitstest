@@ -1,0 +1,40 @@
+<div data-ride="carousel" class="carousel slide" id="myCarousel"> 
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+      <?php $j=0; foreach($featuredEvents as $event){ ?>
+      <?php if(file_exists(getcwd() .'/public/uploads/event/'.$event->getEventImageBanner())){ ?>
+    <li <?php if($j==0){ ?> class="active" <?php } ?> data-slide-to="<?php echo $j++; ?>" data-target="#myCarousel"></li>  
+      <?php } ?>
+      <?php } ?>
+  </ol>
+  <div role="listbox" class="carousel-inner">
+    
+    <?php $k=0; foreach($featuredEvents as $event){ ?>
+      <?php if(file_exists(getcwd() .'/public/uploads/event/'.$event->getEventImageBanner())){ ?>
+    <div class="item <?php if($k==0) echo 'active'; ?> "> <img alt="" src="<?php echo $this->basePath('/uploads/event/'.$event->getEventImageBanner());?>" >
+      <div class="container">
+        <div class="carousel-caption">
+          <h1><?php echo $event->getEventArtist(); ?><span class="text-blue"><?php echo $event->getEventName(); ?></span></h1>
+          <?php $i=0; foreach($event->getEventSchedule() as $schedule){ $i++; ?>
+          <p><a role="button" href="<?php echo $this->url('eventdetail', array('eventId' => $event->getId())); ?>" class="buyticket"><img src="<?php echo $this->basePath() ?>/assets/frontend/images/buybutton.svg" /></a><br>
+            <?php echo $schedule->getEventDate()->format('l, d F Y'); ?></p>
+                
+          <?php if($i==1){
+                break;
+                } } ?>
+        </div>
+      </div>
+    </div>
+      <?php } ?>
+    <?php $k++;} ?>
+    
+  </div>
+  <a data-slide="prev" role="button" href="#myCarousel" class="left carousel-control"> 
+      <span aria-hidden="true" class="glyphicon glyphicon-chevron-left"></span> 
+      <span class="sr-only">Previous</span> 
+  </a> 
+  <a data-slide="next" role="button" href="#myCarousel" class="right carousel-control"> 
+      <span aria-hidden="true" class="glyphicon glyphicon-chevron-right"></span> 
+      <span class="sr-only">Next</span> 
+  </a> 
+</div>

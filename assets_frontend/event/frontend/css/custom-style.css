@@ -1,0 +1,86 @@
+/* Custom styles */
+
+
+
+/* for event detail page banner section starts - 28 July 2015 [Gurjeet] */
+
+.event-wrapper .event-row .event-dates{width:160px}
+
+.event-wrapper .event-row .event-description{width:473px}
+
+.event-wrapper .event-row .event-location{width:180px;}
+
+.event-wrapper .event-row .event-location .media-body{/*width:84px;*/ padding-right:10px;}
+
+#googleMap{width:100%;height:100%}
+
+/* for event detail page banner section ends - 28 July 2015 [Gurjeet] */
+
+.se-pre-con {display:none;position:fixed;left:0px;top:0px;width:100%;height:100%;background-color:#fff;opacity:.4;z-index:9999;
+
+	background: url(../../admin/images/spinners/335.gif) center no-repeat #fff;
+
+}
+
+label.validation-error{color:red}
+
+label.valerror{font-size:14px;border:1px solid #f35343;color:#f35343;border-radius:2px;padding:8px; display:inline-block; margin-top:7px;}
+
+input.valerror{border-color:#f35343}
+
+.termscheck input.valerror{border:none;top:0!important;padding:0;}
+
+.termscheck label.valerror{border:none;width:auto;display:block;margin-top:20px; position:absolute;border:1px solid #f35343;} 
+
+.form-group .exp{ display:inline-block; vertical-align:middle; margin-top:0; padding-top:15px;color:#333;font-family: "Varela Round",sans-serif;font-weight:normal;}
+
+#checkoutform .input-lg{ padding-top:inherit;}
+
+#checkoutform .form-control{ padding:10px;}
+
+.method .btn-blue{ margin-top:25px;}
+
+.event-row .event-dates .date-to-attend{ min-height:249px;}
+
+
+
+/* For Lazy loading */
+
+.scrollExtend-loading { background: url(../images/ajax-loader-2.gif) 50% 50% no-repeat; height: 32px; width: 100%; clear:both;}
+
+
+
+#payment-details .newcardform #usercardinfo .form-group:first-child{ position:relative; min-height:50px;}
+
+.newcardform #usercardinfo .form-group:first-child label.validation-error{ position:absolute;bottom:-11px;}
+
+.exp-date span{ display:inline-block; width:49%;}
+
+#payment-details .media .media-body.exp-date span input.form-control{ width:100%;}
+
+
+
+.exp-date span label.validation-error{ display:block;}
+
+
+
+@media screen  and (max-device-width: 1023px)  {
+
+.event-wrapper .event-row .event-dates{width:100%; box-sizing:border-box;}
+
+.event-wrapper .event-row .event-description{width:100%; box-sizing:border-box;}
+
+.event-wrapper .event-row .event-location{width:100%; box-sizing:border-box;}
+
+
+
+
+
+#header li.user-login ul.dropdown-menu::after{ border:none;}
+
+.event-row .event-description .show-more-content{ padding-right:10%;}
+
+}
+
+
+
